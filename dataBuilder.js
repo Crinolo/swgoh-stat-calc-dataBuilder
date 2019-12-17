@@ -1,4 +1,4 @@
-var gameData = {};
+let gameData = {};
 const ApiSwgohHelp = require('api-swgoh-help');
 const fetch = require('node-fetch');
 const fs = require('fs');
@@ -29,10 +29,12 @@ function deleteFolderRecursive(path) {
   }
 }
 // Helper method for memoizing functions
+// Note: original code for this function taken directly from:
+//   https://medium.com/@bluepnume/async-javascript-is-much-more-fun-when-you-spend-less-time-thinking-about-control-flow-8580ce9f73fc
 function memoize(method) {
   let cache = {};
 
-  return function() { // original code has 'async' in this line.  Is that necessary?
+  return function() { // original code has 'async' in this line.  Seems unnecessary.
     let args = JSON.stringify(arguments);
     cache[args] = cache[args] || method.apply(this, arguments);
     return cache[args];
@@ -88,9 +90,10 @@ async function loadData(dataFolder) {
     } else {
       console.error("Trying to reuse stale data.");
       gameData = require(`${dataPath}gameData.json`);
+      apiVer = require(`${dataPath}dataVersion.json`);
     }
   }
-  return gameData;
+  return updated;
 }
 
 // Check for new Versions.  Assigns value to global 'apiVer' object.
