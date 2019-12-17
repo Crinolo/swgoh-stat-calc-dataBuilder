@@ -76,6 +76,7 @@ async function loadData(dataFolder) {
     if (await checkVersions())
       throw new Error(`Current Data Outdated`);
     // if still here, data is already updated
+    gameData = require(`${dataPath}gameData.json`);
     updated = true;
   } catch (e) {
     console.error(e.message);
