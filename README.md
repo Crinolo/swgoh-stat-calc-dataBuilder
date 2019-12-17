@@ -18,7 +18,8 @@ dataBuilder.loadData(path).then( ... );
 ```
 
 Note that simply calling `require('swgoh-stat-calc-data-builder')` alone will return a function that initializes the dataBuilder, but does not return the dataBuilder object itself.\
-The object passed to this initialization function is internally passed to a `new ApiSwgohHelp()` object that the dataBuilder will use.\
+The object passed to the function can be an instance of ApiSwgohHelp, and the dataBuilder will use that to make it's requests.\
+If the object passed to this initialization function is not an instance of ApiSwgohHelp, it is internally passed to a `new ApiSwgohHelp()` object that the dataBuilder will use.\
 See the documentation for the [api-swgoh-help package](https://www.npmjs.com/package/api-swgoh-help) for more info on that, though the 'username' and 'password' properties should be all that's needed.
 
 ## Methods ##
@@ -103,3 +104,20 @@ const dataBuilder = require('swgoh-stat-calc-data-builder')({
 await databuilder.loadData(__dirname + '/../statCalcData/');
 statCalculator.setGameData( dataBuilder.getData() );
 ```
+
+If an instance of ApiSwgohHelp should be shared with the dataBuilder and your remaining code:
+
+```js
+const ApiSwgohHelp = require('api-swgoh-help');
+const swapi = new ApiSwgohHelp({
+  "username":process.env.SWGOH_HELP_UNAME,
+  "password":process.env.SWGOH_HELP_PASS
+});
+const statCalculator = require('swgoh-stat-calc');
+const dataBuilder = require('swgoh-stat-calc-data-builder')(swapi);
+
+await databuilder.loadData(__dirname + '/../statCalcData/');
+statCalculator.setGameData( dataBuilder.getData() );
+```
+
+

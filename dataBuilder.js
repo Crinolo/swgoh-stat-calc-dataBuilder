@@ -5,7 +5,10 @@ const fs = require('fs');
 let swapi, dataPath, apiVer, updated;
 
 module.exports = (swapiPrefs) => {
-  swapi = new ApiSwgohHelp(swapiPrefs);
+  if ( swapiPrefs instanceof ApiSwgohHelp )
+    swapi = swapiPrefs;
+  else
+    swapi = new ApiSwgohHelp(swapiPrefs);
   return {
     loadData: loadData,
     getData: () => { return gameData; },
