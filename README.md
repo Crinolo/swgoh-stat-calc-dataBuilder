@@ -9,7 +9,7 @@ Node package to build the 'gameData' object used by the [swgoh-stat-calc package
 
 ### Initialization ###
 ```js
-const dataBuilder = require('swgoh-stat-calc-dataBuilder')({
+const dataBuilder = require('swgoh-stat-calc-data-builder')({
   username: <swgoh.help username>,
   password: <swgoh.help password>
 });
@@ -17,7 +17,7 @@ let path = __dirname + '/../statCalcData/';
 dataBuilder.loadData(path).then( ... );
 ```
 
-Note that simply calling `require('swgoh-stat-calc-dataBuilder')` alone will return a function that initializes the dataBuilder, but does not return the dataBuilder object itself.\
+Note that simply calling `require('swgoh-stat-calc-data-builder')` alone will return a function that initializes the dataBuilder, but does not return the dataBuilder object itself.\
 The object passed to this initialization function is internally passed to a `new ApiSwgohHelp()` object that the dataBuilder will use.\
 See the documentation for the [api-swgoh-help package](https://www.npmjs.com/package/api-swgoh-help) for more info on that, though the 'username' and 'password' properties should be all that's needed.
 
@@ -95,7 +95,7 @@ Assuming this is being used in conjunction with the [swgoh-stat-calc](https://ww
 
 ```js
 const statCalculator = require('swgoh-stat-calc');
-const dataBuilder = require('swgoh-stat-calc-dataBuilder')({
+const dataBuilder = require('swgoh-stat-calc-data-builder')({
   username: process.env.SWGOH_HELP_UNAME,
   password: process.env.SWGOH_HELP_PASS
 });

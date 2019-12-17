@@ -6,7 +6,7 @@ const fs = require('fs');
 // local path to data builder used here, as this doesn't require itself to be installed.
 // normally, use the line commented below instead.
 const dataBuilder = require(__dirname + '/dataBuilder.js')({
-/* const dataBuilder = require('swgoh-stat-calc-dataBuilder')({ */
+/* const dataBuilder = require('swgoh-stat-calc-data-builder')({ */
   "username":uName,
   "password":pass
 });

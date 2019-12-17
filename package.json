@@ -1,5 +1,5 @@
 {
-  "name": "swgoh-stat-calc-dataBuilder",
+  "name": "swgoh-stat-calc-data-builder",
   "version": "2.0.0",
   "description": "DataBuilder for the swgoh-stat-calc package",
   "main": "dataBuilder.js",
