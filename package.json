@@ -1,0 +1,29 @@
+{
+  "name": "swgoh-stat-calc-dataBuilder",
+  "version": "2.0.0",
+  "description": "DataBuilder for the swgoh-stat-calc package",
+  "main": "dataBuilder.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "swgoh",
+    "star wars",
+    "galaxy of heroes",
+    "stat calculator"
+  ],
+  "author": "Crinolo",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Crinolo/swgoh-stat-calc-dataBuilder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Crinolo/swgoh-stat-calc-dataBuilder/issues"
+  },
+  "homepage": "https://github.com/Crinolo/swgoh-stat-calc-dataBuilder#readme",
+  "dependencies": {
+    "api-swgoh-help": "^3.3.0",
+    "node-fetch": "^2.6.0"
+  }
+}
