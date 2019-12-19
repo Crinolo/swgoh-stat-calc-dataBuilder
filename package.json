@@ -1,6 +1,6 @@
 {
   "name": "swgoh-stat-calc-data-builder",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "DataBuilder for the swgoh-stat-calc package",
   "main": "dataBuilder.js",
   "scripts": {
