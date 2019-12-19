@@ -458,6 +458,7 @@ async function loadUnitData() {
                               primaryStat: unit.primaryUnitStat,
                               stats: stats,
                               growthModifiers: unitGMTables[ unit.baseId ],
+                              skills: unit.skillReferenceList.map( skill => skills[ skill.skillId ] ),
                               crewStats: statTables[ unit.crewContributionTableId ],
                               crew: unit.crewList.map( crew => crew.unitId)
                             };
