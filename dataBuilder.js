@@ -229,6 +229,7 @@ async function loadTableData() {
               // 'complete gear tier' is one less than current gear level, so increment key by one
               data.gp.gearLevelGP[ ++(row.key.match(/TIER_0?(\d+)/)[1]) ] = +row.value;
             });
+            data.cr.gearLevelCR = data.gp.gearLevelGP; // used for both GP and CR
             break;
           case "galactic_power_per_tier_slot_table":
             g = data.gp.gearPieceGP = {};
