@@ -130,8 +130,8 @@ If an instance of ApiSwgohHelp should be shared with the dataBuilder and your re
 ```js
 const ApiSwgohHelp = require('api-swgoh-help');
 const swapi = new ApiSwgohHelp({
-  "username":process.env.SWGOH_HELP_UNAME,
-  "password":process.env.SWGOH_HELP_PASS
+  username:process.env.SWGOH_HELP_UNAME,
+  password:process.env.SWGOH_HELP_PASS
 });
 const statCalculator = require('swgoh-stat-calc');
 const dataBuilder = require('swgoh-stat-calc-data-builder')(swapi);

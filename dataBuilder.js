@@ -4,17 +4,27 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 let swapi, dataPath, apiVer, updated;
 
-module.exports = (swapiPrefs) => {
-  if ( swapiPrefs instanceof ApiSwgohHelp )
-    swapi = swapiPrefs;
-  else
+module.exports = {
+  fromPrefs: (swapiPrefs) => {
     swapi = new ApiSwgohHelp(swapiPrefs);
-  return {
-    loadData: loadData,
-    getData: () => { return gameData; },
-    getVersion: () => { return apiVer; },
-    isUpdated: () => { return updated; }
-  };
+    
+    return {
+      loadData: loadData,
+      getData: () => { return gameData; },
+      getVersion: () => { return apiVer; },
+      isUpdated: () => { return updated; }
+    };
+  },
+  fromApiSwgohHelp: (api) => {
+    swapi = api;
+    
+    return {
+      loadData: loadData,
+      getData: () => { return gameData; },
+      getVersion: () => { return apiVer; },
+      isUpdated: () => { return updated; }
+    };
+  }
 };
 
 // Helper method for recursively deleting folders
@@ -208,14 +218,13 @@ async function loadTableData() {
             table.rowList.forEach( row => {
               data.gp.crewSizeFactor[ row.key ] = +row.value;
             });
-            data.cr.crewSizeFactor = data.gp.crewSizeFactor; // used for both GP and CR
             break;
           case "crew_rating_per_unit_rarity":
             data.cr.crewRarityCR = {};
             table.rowList.forEach( row => {
               data.cr.crewRarityCR[ rarityEnum[row.key] ] = +row.value;
             });
-            data.gp.crewRarityGP = data.cr.crewRarityCR; // used for both CR and GP
+            data.gp.unitRarityGP = data.cr.crewRarityCR; // used for both CR and GP
             break;
           case "crew_rating_per_gear_piece_at_tier":
             data.cr.gearPieceCR = {};
@@ -224,7 +233,7 @@ async function loadTableData() {
             });
             break;
           case "galactic_power_per_complete_gear_tier_table":
-            data.gp.gearLevelGP = {};
+            data.gp.gearLevelGP = { 1: 0 }; // initialize with value of 0 for unit's at gear 1 (which have none 'complete')
             table.rowList.forEach( row => {
               // 'complete gear tier' is one less than current gear level, so increment key by one
               data.gp.gearLevelGP[ ++(row.key.match(/TIER_0?(\d+)/)[1]) ] = +row.value;
@@ -236,7 +245,7 @@ async function loadTableData() {
             table.rowList.forEach( row => {
               let [ tier, slot ] = row.key.split(":");
               g[ tier ] = g[ tier ] || {}; // ensure table exists for this gear level
-              g[ tier ][ slot ] = +row.value;
+              g[ tier ][ --slot ] = +row.value; // decrement slot by 1 as .help uses 0-based indexing for slot (game table is 1-based)
             });
             break;
           case "crew_contribution_multiplier_per_rarity":
@@ -247,24 +256,25 @@ async function loadTableData() {
             data.gp.shipRarityFactor = data.cr.shipRarityFactor; // used for both CR and GP
             break;
           case "galactic_power_per_tagged_ability_level_table":
-            g = data.gp.abilitySpecialCR = {};
+            g = data.gp.abilitySpecialGP = {};
             table.rowList.forEach( row => {
-              if ( row.key == "zeta" ) g[ row.key ] = +row.value;
-              else {
-                let [ , type, level] = row.key.match(/^(\w+)_\w+?(\d)?$/);
-                switch (type) {
-                  case "contract":
-                    g[ type ] = g[ type ] || {}; // ensure 'contract' table exists
-                    g[ type ][ ++level || 1 ] = +row.value;
-                    break;
-                  case "reinforcement":
-                    g[ "hardware" ] = g[ "hardware" ] || {1: 0}; // ensure 'hardware' table exists (and counts 0 xp for tier 1)
-                    g[ "hardware" ][ ++level ] = +row.value;
-                    break;
-                  default:
-                    console.error(`Unknown ability type '${row.key}' found.`);
-                }
-              }
+              g[ row.key ] = +row.value;
+              // if ( row.key == "zeta" ) g[ row.key ] = +row.value;
+              // else {
+                // let [ , type, level] = row.key.match(/^(\w+)_\w+?(\d)?$/);
+                // switch (type) {
+                  // case "contract":
+                    // g[ type ] = g[ type ] || {}; // ensure 'contract' table exists
+                    // g[ type ][ ++level || 1 ] = +row.value;
+                    // break;
+                  // case "reinforcement":
+                    // g[ "hardware" ] = g[ "hardware" ] || {1: 0}; // ensure 'hardware' table exists (and counts 0 xp for tier 1)
+                    // g[ "hardware" ][ ++level ] = +row.value;
+                    // break;
+                  // default:
+                    // console.error(`Unknown ability type '${row.key}' found.`);
+                // }
+              // }
             });
             break;
           case "crew_rating_per_mod_rarity_level_tier":
@@ -393,7 +403,18 @@ async function loadUnitData() {
         if (error) throw error;
         let skills = {};
         skillList.forEach( skill => {
-          skills[ skill.id ] = { id: skill.id, maxTier: skill.tierList.length + 1, isZeta: skill.tierList.slice(-1)[0].powerOverrideTag == "zeta" };
+          let s = {
+            id: skill.id,
+            maxTier: skill.tierList.length + 1,
+            powerOverrideTags: {},
+            isZeta: skill.tierList.slice(-1)[0].powerOverrideTag == "zeta"
+          };
+          skill.tierList.forEach( (tier, i) => {
+            if (tier.powerOverrideTag) {
+              s.powerOverrideTags[ i+2 ] = tier.powerOverrideTag;
+            }
+          });
+          skills[ skill.id ] = s;
         });
         return skills;
       }),
@@ -454,14 +475,19 @@ async function loadUnitData() {
         unit.baseStat.statList.forEach( stat => {
           stats[ stat.unitStatId ] = stat.unscaledDecimalValue;
         });
-        data[unit.baseId] = { combatType: 2,
-                              primaryStat: unit.primaryUnitStat,
-                              stats: stats,
-                              growthModifiers: unitGMTables[ unit.baseId ],
-                              skills: unit.skillReferenceList.map( skill => skills[ skill.skillId ] ),
-                              crewStats: statTables[ unit.crewContributionTableId ],
-                              crew: unit.crewList.map( crew => crew.unitId)
-                            };
+        let ship = { combatType: 2,
+                     primaryStat: unit.primaryUnitStat,
+                     stats: stats,
+                     growthModifiers: unitGMTables[ unit.baseId ],
+                     skills: unit.skillReferenceList.map( skill => skills[ skill.skillId ] ),
+                     crewStats: statTables[ unit.crewContributionTableId ],
+                     crew: []
+                   };
+        unit.crewList.forEach( crew => {
+          ship.crew.push( crew.unitId );
+          crew.skillReferenceList.forEach( s => ship.skills.push( skills[ s.skillId ] ) );
+        });
+        data[unit.baseId] = ship;
       }
     });
     
