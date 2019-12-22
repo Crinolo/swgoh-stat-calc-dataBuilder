@@ -8,8 +8,15 @@ Node package to build the 'gameData' object used by the [swgoh-stat-calc package
 `npm install swgoh-stat-calc-dataBuilder`
 
 ### Initialization ###
+
+Two options:
+* `.fromPrefs` will create an internal instance of [ApiSwgohHelp](https://www.npmjs.com/package/api-swgoh-help).
+* `.fromApiSwgohHelp` will use an instance of [ApiSwgohHelp](https://www.npmjs.com/package/api-swgoh-help) that you create first.
+
+#### .fromPrefs ####
+
 ```js
-const dataBuilder = require('swgoh-stat-calc-data-builder')({
+const dataBuilder = require('swgoh-stat-calc-data-builder').fromPrefs({
   username: <swgoh.help username>,
   password: <swgoh.help password>
 });
@@ -17,10 +24,23 @@ let path = __dirname + '/../statCalcData/';
 dataBuilder.loadData(path).then( ... );
 ```
 
-Note that simply calling `require('swgoh-stat-calc-data-builder')` alone will return a function that initializes the dataBuilder, but does not return the dataBuilder object itself.\
-The object passed to the function can be an instance of ApiSwgohHelp, and the dataBuilder will use that to make it's requests.\
-If the object passed to this initialization function is not an instance of ApiSwgohHelp, it is internally passed to a `new ApiSwgohHelp()` object that the dataBuilder will use.\
-See the documentation for the [api-swgoh-help package](https://www.npmjs.com/package/api-swgoh-help) for more info on that, though the 'username' and 'password' properties should be all that's needed.
+See the [api-swgoh-help package](https://www.npmjs.com/package/api-swgoh-help) for possible options to provide.
+Username and password, as shown above, are required.
+
+#### .fromApiSwgohHelp ####
+
+```js
+const ApiSwgohHelp = require('api-swgoh-help');
+const swapi = new ApiSwgohHelp({
+  username: <swgoh.help username>,
+  password: <swgoh.help password>
+});
+const dataBuilder = require('swgoh-stat-calc-data-builder').fromApiSwgohHelp(swapi);
+let path = __dirname + '/../statCalcData/';
+dataBuilder.loadData(path).then( ... );
+```
+
+Allows you to use the same instance of [ApiSwgohHelp](https://www.npmjs.com/package/api-swgoh-help) after loading data.
 
 ## Methods ##
 
