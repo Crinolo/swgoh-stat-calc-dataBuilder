@@ -49,7 +49,7 @@ Allows you to use the same instance of [ApiSwgohHelp](https://www.npmjs.com/pack
 * .getVersion()
 * .isUpdated()
 
-### async .loadData(path) ###
+### async .loadData(path, expectedVersion = null) ###
 
 Attempts to query swogh.help to collect the data needed and build the 'gameData' object.  Will save 'gameData.json' and 'dataVersion.json' files to the given folder.
 
@@ -58,6 +58,11 @@ Attempts to query swogh.help to collect the data needed and build the 'gameData'
 `path`*String*\
 The path to the folder where the .json files should be saved.
 Will also use that path to check for and cache temp files in case not all data can be aquired in one go.
+
+`expectedVersion` *Object* `| Optional`\
+An optional version object to compare against the archived version.
+Should be of the same form as the object found at [https://api.swgoh.help/version](https://api.swgoh.help/version).
+If missing, the dataBuilder will query that link to retrieve version info.
 
 #### Return Value ####
 

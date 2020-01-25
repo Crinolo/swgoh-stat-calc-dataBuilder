@@ -81,12 +81,12 @@ async function checkTempFiles(folder, aSyncMethod) {
 }
 
 // Check for updates, rebuild data if necessary.  Return gameData
-async function loadData(dataFolder) {
+async function loadData(dataFolder, expectedVer = null) {
   console.log(`Loading Data from ${dataFolder}gameData.json`);
   updated = false;
   try {
     dataPath = `${dataFolder}${dataFolder.slice(-1) == '/' ? '':'/'}`;
-    if (await checkVersions())
+    if (await checkVersions(expectedVer))
       throw new Error(`Current Data Outdated`);
     // if still here, data is already updated
     gameData = require(`${dataPath}gameData.json`);
@@ -112,10 +112,10 @@ async function loadData(dataFolder) {
 
 // Check for new Versions.  Assigns value to global 'apiVer' object.
 // Returns true if new version available, false if not.
-async function checkVersions() {
+async function checkVersions(expectedVer) {
   let curVer;
   try {
-    apiVer = await (await fetch('https://api.swgoh.help/version')).json();
+    apiVer = expectedVer || await (await fetch('https://api.swgoh.help/version')).json();
     console.log(`apiVer: ${JSON.stringify(apiVer)}`);
     curVer = require(dataPath + 'dataVersion.json');
     console.log(`curVer: ${JSON.stringify(curVer)}`);
